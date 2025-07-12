@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Painel Elétrico - QR Code Tool</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="https://unpkg.com/html5-qrcode"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f3f4f6;
+      padding: 20px;
+      text-align: center;
+    }
+    h2 {
+      margin-top: 30px;
+    }
+    #reader {
+      width: 300px;
+      margin: 0 auto;
+    }
+    #qrcode {
+      margin-top: 20px;
+    }
+    input, button, textarea {
+      padding: 10px;
+      margin: 10px auto;
+      display: block;
+      width: 90%;
+      max-width: 400px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 16px;
+    }
+    .section {
+      background: #fff;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      margin-bottom: 30px;
+    }
+    #result a {
+      color: green;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="section">
+    <h2>📷 Escanear QR Code</h2>
+    <div id="reader"></div>
+    <p><strong>Resultado:</strong> <span id="result">Aguardando leitura...</span></p>
+    <button onclick="stopScanner()">Parar Scanner</button>
+  </div>
+
+  <div class="section">
+    <h2>⚙️ Gerar QR Code</h2>
+    <input id="panel_code" placeholder="Código do Painel (ex: ES6T20R1KGN1A)">
+    <input id="ul_code" placeholder="UL CODE (ex: UL-123456)">
+    <input id="project_code" placeholder="PROJECT CODE (ex: PRJ-7890)">
+    <input id="date" placeholder="DATE (ex: 2024-04-24)">
+    <button onclick="generate()">Gerar QR Code</button>
+    <div id="qrcode"></div>
+    <textarea id="qrdetails" rows="5" readonly></textarea>
+  </div>
+
+  <script>
+    const scanner = new Html5Qrcode("reader");
+
+    function startScanner() {
+      scanner.start(
+        { facingMode: "environment" },
+        { fps: 10, qrbox: 250 },
+        decoded => {
+          document.getElementById("result").innerHTML = `<a href="${decoded}" target="_blank">${decoded}</a>`;
+          scanner.stop();
+        },
+        error => {}
+      );
+    }
+
+    function stopScanner() {
+      scanner.stop().then(() => {
+        document.getElementById("result").innerText = "Scanner parado.";
+      });
+    }
+
+    function generate() {
+      const code = document.getElementById("panel_code").value.trim();
+      const ul = document.getElementById("ul_code").value.trim();
+      const project = document.getElementById("project_code").value.trim();
+      const date = document.getElementById("date").value.trim();
+
+      const data = `PANEL: ${code}\nUL: ${ul}\nPROJECT: ${project}\nDATE: ${date}`;
+      document.getElementById("qrdetails").value = data;
+
+      const qrContainer = document.getElementById("qrcode");
+      qrContainer.innerHTML = "";
+      new QRCode(qrContainer, {
+        text: data,
+        width: 256,
+        height: 256
+      });
+    }
+
+    startScanner();
+  </script>
+
+</body>
+</html>
+
